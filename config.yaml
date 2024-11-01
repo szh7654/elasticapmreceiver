@@ -1,0 +1,20 @@
+receivers:
+  elasticapm:
+    endpoint: 0.0.0.0:8200
+
+
+
+exporters:
+  # NOTE: Prior to v0.86.0 use `logging` instead of `debug`.
+  debug:
+    verbosity: detailed
+
+
+service:
+  pipelines:
+    traces:
+      receivers: [elasticapm]
+      exporters: [debug]
+  telemetry:
+    logs:
+      level: debug
