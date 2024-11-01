@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/elasticapmreceiver/translator"
+	"github.com/szh7654/elasticapmreceiver/translator"
 	"io"
 	"net"
 	"net/http"
