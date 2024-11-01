@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/receiver/elasticapmreceiver
+module github.com/szh7654/elasticapmreceiver
 
 go 1.22.0
 
