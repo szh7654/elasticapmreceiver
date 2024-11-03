@@ -7,6 +7,7 @@ go 1.22.0
 require (
 	github.com/elastic/apm-data v1.14.1
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/clickhouseexporter v0.112.0
+	github.com/open-telemetry/opentelemetry-collector-contrib/internal/sharedcomponent v0.112.0
 	go.opentelemetry.io/collector/component v0.112.0
 	go.opentelemetry.io/collector/config/confighttp v0.112.0
 	go.opentelemetry.io/collector/confmap v1.18.0

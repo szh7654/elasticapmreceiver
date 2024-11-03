@@ -2,7 +2,7 @@ package elasticapmreceiver
 
 import (
 	"context"
-
+	"fmt"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/consumer"
@@ -17,6 +17,8 @@ const (
 	defaultBatchSize         = 10
 )
 
+// var receivers = sharedcomponent.NewSharedComponents()
+
 type ConponentType struct {
 }
 
@@ -24,7 +26,7 @@ func NewFactory() receiver.Factory {
 	return receiver.NewFactory(
 		Type,
 		createDefaultConfig,
-		receiver.WithTraces(createTraces, component.StabilityLevelDevelopment),
+		//receiver.WithTraces(createTraces, component.StabilityLevelDevelopment),
 		receiver.WithMetrics(createMetrics, component.StabilityLevelDevelopment),
 	)
 }
@@ -41,25 +43,27 @@ func createDefaultConfig() component.Config {
 	}
 }
 
-func createTraces(
-	_ context.Context,
-	settings receiver.Settings,
-	config component.Config,
-	trace consumer.Traces,
-) (receiver.Traces, error) {
-	if instance == nil {
-		cfg := config.(*Config)
-		newElasticAPMReceiver(cfg, settings)
-	}
-	instance.registerTraceConsumer(trace)
-	return instance, nil
-}
+//func createTraces(
+//	_ context.Context,
+//	settings receiver.Settings,
+//	config component.Config,
+//	trace consumer.Traces,
+//) (receiver.Traces, error) {
+//	fmt.Println("creating traces...")
+//	if instance == nil {
+//		cfg := config.(*Config)
+//		newElasticAPMReceiver(cfg, settings)
+//	}
+//
+//	instance.registerTraceConsumer(trace)
+//	return instance, nil
+//}
 
 func createMetrics(_ context.Context, settings receiver.Settings, config component.Config, metrics consumer.Metrics) (receiver.Metrics, error) {
-	if instance == nil {
-		cfg := config.(*Config)
-		newElasticAPMReceiver(cfg, settings)
-	}
-	instance.registerMetricConsumer(metrics)
-	return instance, nil
+	fmt.Println("creating metrics...")
+	cfg := config.(*Config)
+	r := newElasticAPMReceiver(cfg, settings)
+	r.metricConsumer = metrics
+	r.registerMetricConsumer(metrics)
+	return r, nil
 }

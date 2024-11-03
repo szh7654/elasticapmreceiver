@@ -152,6 +152,8 @@ github.com/open-telemetry/opentelemetry-collector-contrib/exporter/clickhouseexp
 github.com/open-telemetry/opentelemetry-collector-contrib/exporter/clickhouseexporter v0.112.0/go.mod h1:5UKMq5Y0P8q3STMRreLJ0Eys+AvVpk6p4nUcLdb79hE=
 github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal v0.112.0 h1:pSBfSOMpOMyZcp3NEp/Zy2Gg0MZ2NXAL52AuojFRgFM=
 github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal v0.112.0/go.mod h1:kDtB/YZgFWrzLFCrkAkVqbafbg6huF5qsen9Z5ditZ4=
+github.com/open-telemetry/opentelemetry-collector-contrib/internal/sharedcomponent v0.112.0 h1:g7lqlvAqhkbZ1cPcbDNRxawb0MOzlvm9AevE+0MlknQ=
+github.com/open-telemetry/opentelemetry-collector-contrib/internal/sharedcomponent v0.112.0/go.mod h1:oep6LZlvIzNGKT4wx5duQuxELChvmOX1YzM/nmBU8BI=
 github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/jaeger v0.111.0 h1:c8dHCbDk8RNYC8x2Go+yatwQCK8zgk3i6FmT3p0JJec=
 github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/jaeger v0.111.0/go.mod h1:c1ZBGwAPwSzJqWFnyAygLCbFO1GcMzpiwwqyfvYL1IU=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=

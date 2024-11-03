@@ -36,9 +36,7 @@ type elasticapmReceiver struct {
 	settings       receiver.Settings
 }
 
-var instance *elasticapmReceiver
-
-func newElasticAPMReceiver(cfg *Config, settings receiver.Settings) {
+func newElasticAPMReceiver(cfg *Config, settings receiver.Settings) *elasticapmReceiver {
 	r := &elasticapmReceiver{
 		cfg:      cfg,
 		settings: settings,
@@ -49,10 +47,11 @@ func newElasticAPMReceiver(cfg *Config, settings receiver.Settings) {
 		r.httpMux.HandleFunc(r.cfg.RUMEventsUrlPath, wrapper(r.handleRUMEvents))
 	}
 
-	instance = r
+	return r
 }
 
 func (r *elasticapmReceiver) startHTTPServer(cfg *confighttp.ServerConfig, host component.Host) error {
+
 	r.settings.Logger.Info("Starting HTTP server", zap.String("endpoint", cfg.Endpoint))
 	var hln net.Listener
 	hln, err := cfg.ToListener(context.Background())
@@ -121,10 +120,10 @@ func (r *elasticapmReceiver) handleEvents(w http.ResponseWriter, req *http.Reque
 	if err != nil {
 		r.settings.Logger.Error("handleTraces error")
 	}
-	if traceData != nil {
+	if traceData != nil && r.traceConsumer != nil {
 		r.traceConsumer.ConsumeTraces(req.Context(), *traceData)
 	}
-	if metricData != nil {
+	if metricData != nil && r.metricConsumer != nil {
 		r.metricConsumer.ConsumeMetrics(req.Context(), *metricData)
 	}
 }
@@ -182,6 +181,24 @@ func (r *elasticapmReceiver) handleTraces(w http.ResponseWriter, req *http.Reque
 		writeError(w, http.StatusBadRequest, "Unable to decode events. Do you have valid ndjson?")
 		return nil, nil, err
 	}
+
+	existTrace := false
+	existMetric := false
+	//existLog := false
+	for _, event := range events {
+		switch event.Type() {
+		case modelpb.TransactionEventType:
+			existTrace = true
+		case modelpb.SpanEventType:
+			existTrace = true
+		case modelpb.MetricEventType:
+			existMetric = true
+			//case modelpb.LogEventType:
+			//	existLog = true
+		}
+
+	}
+
 	// 翻译resource
 	resource := pcommon.NewResource()
 	translator.ConvertMetadata(baseEvent, resource)
@@ -193,9 +210,6 @@ func (r *elasticapmReceiver) handleTraces(w http.ResponseWriter, req *http.Reque
 	scopeSpans := resourceSpans.ScopeSpans().AppendEmpty()
 	spans := scopeSpans.Spans()
 
-	//resourceMetric := pmetric.NewResourceMetrics()
-	//resource.CopyTo(resourceMetric.Resource())
-	//metrics := resourceMetric.ScopeMetrics().AppendEmpty().Metrics().AppendEmpty()
 	metrics := pmetric.NewMetrics()
 	resourceMetrics := metrics.ResourceMetrics().AppendEmpty()
 	resource.CopyTo(resourceMetrics.Resource())
@@ -213,9 +227,7 @@ func (r *elasticapmReceiver) handleTraces(w http.ResponseWriter, req *http.Reque
 		case modelpb.ErrorEventType:
 			fmt.Println("Ignoring error")
 		case modelpb.MetricEventType:
-
 			translator.ConvertMetric(event, ms.AppendEmpty())
-			fmt.Println("ignoring metrics")
 
 		case modelpb.LogEventType:
 			fmt.Println("Ignoring log")
@@ -223,8 +235,15 @@ func (r *elasticapmReceiver) handleTraces(w http.ResponseWriter, req *http.Reque
 			fmt.Println("Unknown event type")
 		}
 	}
-
-	return &traceData, &metrics, nil
+	resTrace := &traceData
+	resMetric := &metrics
+	if !existTrace {
+		resTrace = nil
+	}
+	if !existMetric {
+		resMetric = nil
+	}
+	return resTrace, resMetric, nil
 }
 
 func (r *elasticapmReceiver) registerMetricConsumer(metricConsumer consumer.Metrics) error {
